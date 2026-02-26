@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Bodycam Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<script>
+const CONFIG = { /* === CONFIG ==== */
+    player: "David Laker |",
+    callsign: "[12-200]",
+    deviceName: "Axon Body 3"
+};              /* === CONFIG ==== */
+</script>
+
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: transparent;
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 14px;
+        color: #F8F8FF;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.55);
+        padding: 10px 14px;
+        border-radius: 10px;
+        text-align: right;
+        letter-spacing: 1px;
+        text-shadow: 0 0 4px rgba(255,255,255,0.6);
+        backdrop-filter: blur(2px);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .line { margin-bottom: 4px; }
+
+    .rec-dot {
+        width: 8px;
+        height: 8px;
+        background: #ff2b2b;
+        border-radius: 50%;
+        display: inline-block;
+        margin: 0 4px;
+        animation: blink 1.2s infinite alternate;
+    }
+
+    @keyframes blink {
+        from { opacity: 1; }
+        to { opacity: 0.2; }
+    }
+</style>
+</head>
+<body>
+
+<div class="overlay">
+    <div class="line line-top">
+        REC <span class="rec-dot"></span>
+        <span id="device"></span>
+    </div>
+    <div class="line line-user">
+        <span id="player"></span>
+        <span id="callsign"></span>
+    </div>
+    <div class="line line-time">
+        <span id="date"></span>
+        <span id="time"></span>
+        <span id="tz"></span>
+    </div>
+</div>
+
+<script>
+const monthNames = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+const deviceEl = document.getElementById("device");
+const playerEl = document.getElementById("player");
+const callsignEl = document.getElementById("callsign");
+const dateEl = document.getElementById("date");
+const timeEl = document.getElementById("time");
+const tzEl = document.getElementById("tz");
+deviceEl.textContent = CONFIG.deviceName;
+playerEl.textContent = CONFIG.player;
+callsignEl.textContent = CONFIG.callsign;
+const tzFormatter = new Intl.DateTimeFormat(undefined, { timeZoneName: 'short' });
+
+function getTimezoneShort(date) {
+    return tzFormatter.formatToParts(date)
+        .find(p => p.type === "timeZoneName").value;
+}
+
+function tick() {
+    const now = new Date();
+
+    dateEl.textContent =
+        monthNames[now.getMonth()] + " " +
+        String(now.getDate()).padStart(2,'0') + " " +
+        now.getFullYear();
+
+    timeEl.textContent =
+        String(now.getHours()).padStart(2,'0') + ":" +
+        String(now.getMinutes()).padStart(2,'0') + ":" +
+        String(now.getSeconds()).padStart(2,'0');
+
+    tzEl.textContent = getTimezoneShort(now);
+
+    setTimeout(tick, 1000 - now.getMilliseconds());
+}
+
+tick();
+</script>
+</body>
+</html>
